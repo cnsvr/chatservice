@@ -1,5 +1,4 @@
 package com.example.chatservice.enums;
 
-public class MessageCode {
-
+public enum MessageCode {
 }
