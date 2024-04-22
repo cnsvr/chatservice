@@ -16,10 +16,13 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.705'
+    implementation 'software.amazon.awssdk:dynamodb-enhanced:2.25.35'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 }
 
 tasks.named('test') {

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="fragments/header">...<title>Chat Service Admin Panel</title></head>
+
+<body>
+<!-- Begin page -->
+<div class="wrapper">
+
+
+    <!-- ========== Topbar Start ========== -->
+    <div class="navbar-custom" th:fragment="topbar">
+        <div class="topbar container-fluid">
+            <div class="d-flex align-items-center gap-lg-2 gap-1">
+            </div>
+
+            <ul class="topbar-menu d-flex align-items-center gap-3">
+
+                <li class="d-none d-sm-inline-block">
+                    <div class="nav-link" data-bs-placement="left" data-bs-toggle="tooltip" id="light-dark-mode"
+                         title="Theme Mode">
+                        <i class="ri-moon-line font-22"></i>
+                    </div>
+                </li>
+
+                <li class="d-none d-md-inline-block">
+                    <a class="nav-link" data-toggle="fullscreen" href="">
+                        <i class="ri-fullscreen-line font-22"></i>
+                    </a>
+                </li>
+
+                <li class="dropdown">
+                    <a aria-expanded="false" aria-haspopup="false"
+                       class="nav-link dropdown-toggle arrow-none nav-user px-2"
+                       data-bs-toggle="dropdown" href="#" role="button">
+                                <span class="account-user-avatar">
+                                    <img alt="user-image" class="rounded-circle" src="/images/users/legends.png"
+                                         width="32">
+                                </span>
+                        <span class="d-lg-flex flex-column gap-1 d-none">
+                                    <h5 class="my-0">Furkan Cansever</h5>
+                                    <h6 class="my-0 fw-normal">Admin</h6>
+                                </span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
+                        <!-- item-->
+                        <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="mdi mdi-logout me-1"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- ========== Topbar End ========== -->
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div th:classappend="leftside-menu"
+         th:fragment="sidebar">
+        <!-- Brand Logo Light -->
+        <a class="logo logo-light">
+                    <span class="logo-lg">
+                        <img alt="logo" src="/images/logo-white.png">
+                    </span>
+            <span class="logo-sm">
+                        <img alt="small logo" src="/images/logo-sm.png">
+                    </span>
+        </a>
+
+        <!-- Brand Logo Dark -->
+        <a class="logo logo-dark">
+                    <span class="logo-lg">
+                        <img alt="dark logo" src="/images/logo-dark.png">
+                    </span>
+            <span class="logo-sm">
+                        <img alt="small logo" src="/images/logo-dark-sm.png">
+                    </span>
+        </a>
+
+        <!-- Sidebar -left -->
+        <div class="h-100" data-simplebar id="leftside-menu-container">
+
+            <!--- Sidemenu -->
+            <ul th:classappend="side-nav">
+
+
+                <li class="side-nav-item">
+                    <a aria-controls="sidebarTasks" aria-expanded="false" class="side-nav-link"
+                       data-bs-toggle="collapse"
+                       href="#channels">
+                        <i class="ri-discuss-line"></i>
+                        <span> Channels </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="channels">
+                        <ul class="side-nav-second-level">
+                            <li>
+                                <a th:href="@{/admin/channel/room}">Room</a>
+                            </li>
+                            <li>
+                                <a th:href="@{/admin/channel/direct}">Direct</a>
+                            </li>
+                            <li>
+                                <a th:href="@{/admin/channel/group}">Group</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+
+                <div style="position: fixed; bottom: 0; left: 10px; width: 10%; text-align: left; padding: 10px 0; color: #FFFFFF; font-size: 10px">
+                    Server Time:
+                    <br>
+                    <span id="datetime"></span>
+                </div>
+
+                <script>
+                    function updateDateTime() {
+                        // get the current date and time as a string
+                        //dd-mm-yyyy hh:mm:ss
+                        const now = new Date();
+                        // update the `textContent` property of the `span` element with the `id` of `datetime`
+                        document.getElementById('datetime').textContent = now.toUTCString();
+                    }
+
+                    // call the `updateDateTime` function every second
+                    updateDateTime();
+                    setInterval(updateDateTime, 1000);
+                </script>
+
+                <!--- End Sidemenu -->
+
+                <div class="clearfix"></div>
+            </ul>
+        </div>
+    </div>
+    <!-- ========== Left Sidebar End ========== -->
+
+
+    <!-- ============================================================== -->
+    <!-- Start Page Content here -->
+    <!-- ============================================================== -->
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start Content-->
+            <div class="container-fluid"></div>
+            <!-- container -->
+
+        </div>
+        <!-- content -->
+
+        <!-- Footer Start -->
+        <footer class="footer" th:fragment="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <script>document.write(new Date().getFullYear())</script>
+                        © Imaginite Studios
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-md-end footer-links d-none d-md-block">
+                            <a href="javascript: void(0);">About</a>
+                            <a href="javascript: void(0);">Support</a>
+                            <a href="javascript: void(0);">Contact Us</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Vendor js -->
+            <script src="/js/vendor.min.js"></script>
+
+            <!-- Datatable js -->
+            <script src="/vendor/datatables.net/js/jquery.dataTables.min.js"></script>
+            <script src="/vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+            <script src="/vendor/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+            <script src="/vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
+            <script src="/vendor/jquery-datatables-checkboxes/js/dataTables.checkboxes.min.js"></script>
+
+            <!-- Daterangepicker js -->
+            <script src="/vendor/daterangepicker/moment.min.js"></script>
+            <script src="/vendor/daterangepicker/daterangepicker.js"></script>
+            <!-- Apex Charts js -->
+            <script src="/vendor/apexcharts/apexcharts.min.js"></script>
+
+            <!-- Vector Map js -->
+            <script src="/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js"></script>
+            <script src="/vendor/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js"></script>
+
+            <!-- App js -->
+            <script src="/js/app.min.js"></script>
+            <script src='/js/custom.js'></script>
+            <script src='/js/bootstrap-sortable.js'></script>
+            <script crossorigin="anonymous" src="https://kit.fontawesome.com/64ffdc4a02.js"></script>
+
+        </footer>
+        <!-- end Footer -->
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+
+</div>
+<!-- END wrapper -->
+
+</body>
+</html>

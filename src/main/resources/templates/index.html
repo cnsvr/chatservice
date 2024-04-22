@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{fragments/header :: header}"><title>NABER</title></head>
+
+<body>
+<!-- Begin page -->
+<div class="wrapper">
+
+    <!-- ========== Topbar Start ========== -->
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <!-- ========== Topbar End ========== -->
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+    <!-- ========== Left Sidebar End ========== -->
+
+    <div class="content-page">
+        <div class="content">
+            <!-- Start Content-->
+            <div class="container-fluid">
+            </div>
+            <!-- container -->
+        </div>
+    </div>
+    <!-- content -->
+
+    <!-- Footer Start -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <!-- end Footer -->
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!-- ************** -->
+<!--     ALERTS     -->
+<!-- ************** -->
+<!-- Alert Error Start -->
+<div class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert"
+     th:fragment="alertError(show, message)" th:if="${show}">
+    <button aria-label="Close" class="btn-close btn-close-white" data-bs-dismiss="alert" type="button"></button>
+    <strong>Error - </strong> <span th:text="${message}"></span>
+</div>
+
+<!-- Alert Success Start -->
+<div class="alert alert-success alert-dismissible bg-success text-white border-0 fade show" role="alert"
+     th:fragment="alertSuccess(show, message)" th:if="${show}">
+    <button aria-label="Close" class="btn-close btn-close-white" data-bs-dismiss="alert" type="button"></button>
+    <strong>Success - </strong> <span th:text="${message}"></span>
+</div>
+
+<!-- Alert Warning Start -->
+<div class="alert alert-warning alert-dismissible bg-warning text-white border-0 fade show" role="alert"
+     th:fragment="alertWarning(show, message)" th:if="${show}">
+    <button aria-label="Close" class="btn-close btn-close-white" data-bs-dismiss="alert" type="button"></button>
+    <strong>Warning - </strong> <span th:text="${message}"></span>
+</div>
