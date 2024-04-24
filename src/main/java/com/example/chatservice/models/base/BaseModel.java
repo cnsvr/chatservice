@@ -6,9 +6,9 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 
 @DynamoDbBean
 public class BaseModel {
-    public static final String DELIMITER = "#";
     private String pk;
     private String sk;
+    private Long createdAt;
 
     public BaseModel() {
     }
@@ -16,6 +16,7 @@ public class BaseModel {
     public BaseModel(String pk, String sk) {
         this.pk = pk;
         this.sk = sk;
+        this.createdAt = System.currentTimeMillis();
     }
 
     @DynamoDbPartitionKey
@@ -34,5 +35,13 @@ public class BaseModel {
 
     public void setSk(String sk) {
         this.sk = sk;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
     }
 }

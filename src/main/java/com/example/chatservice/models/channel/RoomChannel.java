@@ -1,16 +1,18 @@
 package com.example.chatservice.models.channel;
 
+import com.example.chatservice.constants.ModelConstant;
 import com.example.chatservice.models.base.BaseChannel;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @DynamoDbBean
 public class RoomChannel extends BaseChannel {
     private String roomID;
+
     public RoomChannel() {
     }
 
     public RoomChannel(String roomID) {
-        super(roomID, roomID); // TODO: sk can be different in the future
+        super(ModelConstant.ROOM_CHANNEL_PK_PREFIX, ModelConstant.ROOM_CHANNEL_SK_PREFIX + ModelConstant.DELIMETER + roomID);
         this.roomID = roomID;
     }
 
@@ -20,5 +22,12 @@ public class RoomChannel extends BaseChannel {
 
     public void setRoomID(String roomID) {
         this.roomID = roomID;
+    }
+
+    public static String getPartitionKey() {
+        return ModelConstant.ROOM_CHANNEL_PK_PREFIX;
+    }
+    public static String getSortKey(String roomID) {
+        return ModelConstant.ROOM_CHANNEL_SK_PREFIX + ModelConstant.DELIMETER + roomID;
     }
 }

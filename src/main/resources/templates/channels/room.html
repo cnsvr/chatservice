@@ -1,10 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<head th:replace="~{fragments/header :: header}"><title></title></head>
 <body>
+<div class="wrapper">
 
+    <!-- ========== Topbar Start ========== -->
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <!-- ========== Topbar End ========== -->
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+    <!-- ========== Left Sidebar End ========== -->
+
+    <div class="content-page">
+        <div class="content">
+            <!-- Start Content-->
+            <div class="container-fluid">
+                <h1 class="display-6">All Rooms</h1>
+                <div class="row-12">
+                    <table class="table table-striped table-centered mb-0">
+                        <thead>
+                        <tr>
+                            <th>Room ID</th>
+                            <th>Active Users</th>
+                            <th>Created At</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="room : ${rooms}">
+                            <td class="table-user" th:text="${room.getRoomID()}"></td>
+                            <td th:text="${room.getMembers().size()}"></td>
+                            <td th:text="${#dates.format(room.getCreatedAt(), 'dd/MM/yyyy HH:mm:ss')}"></td>
+                            <td class="table-action">
+                                <button type="button" class="btn btn-success rounded-pill"
+                                        th:data-room-id="${room.getRoomID()}" onclick="joinRoom(this)">
+                                    Join
+                                </button>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+            <!-- container -->
+        </div>
+    </div>
+    <!-- content -->
+
+    <!-- Footer Start -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <!-- end Footer -->
+</div>
 </body>
+
+<script th:inline="javascript">
+    function joinRoom(button) {
+        const roomId = button.getAttribute('data-room-id');
+        window.location.href = '/admin/messages/room/' + roomId;
+    }
+</script>
 </html>

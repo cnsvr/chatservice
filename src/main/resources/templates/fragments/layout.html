@@ -3,6 +3,11 @@
 
 <head th:replace="fragments/header">...<title>Chat Service Admin Panel</title></head>
 
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+<script src="/js/web-socket-client.js"></script>
+
 <body>
 <!-- Begin page -->
 <div class="wrapper">
@@ -96,13 +101,13 @@
                     <div class="collapse" id="channels">
                         <ul class="side-nav-second-level">
                             <li>
-                                <a th:href="@{/admin/channel/room}">Room</a>
+                                <a th:href="@{/admin/channels/room}">Room</a>
                             </li>
                             <li>
-                                <a th:href="@{/admin/channel/direct}">Direct</a>
+                                <a th:href="@{/admin/channels/direct}">Direct</a>
                             </li>
                             <li>
-                                <a th:href="@{/admin/channel/group}">Group</a>
+                                <a th:href="@{/admin/channels/group}">Group</a>
                             </li>
                         </ul>
                     </div>

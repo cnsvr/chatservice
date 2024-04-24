@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{fragments/header :: header}"><title></title></head>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+<script src="/js/web-socket-client.js"></script>
+
+<body>
+<!-- Begin page -->
+<div class="wrapper">
+
+    <!-- ========== Topbar Start ========== -->
+    <div th:replace="~{fragments/layout :: topbar}"></div>
+    <!-- ========== Topbar End ========== -->
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+    <!-- ========== Left Sidebar End ========== -->
+
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start Content-->
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <h4 class="page-title">Chat</h4>
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+
+                <div class="row">
+                    <!-- chat area -->
+                    <div class="col-xxl-12 col-xl-12 order-xl-2">
+                        <div class="card">
+                            <div class="card-body px-0 pb-0">
+                                <ul class="conversation-list px-3" data-simplebar style="max-height: 554px">
+                                    <li class="clearfix">
+                                        <div class="chat-avatar">
+                                            <img src="/images/users/avatar-5.jpg" alt="Shreyu N" class="rounded"/>
+                                            <i>10:04</i>
+                                        </div>
+                                        <div class="conversation-text">
+                                            <div class="ctext-wrap">
+                                                <i>Shreyu N</i>
+                                                <p>
+                                                    We can also discuss about the presentation talk format if you
+                                                    have
+                                                    some extra mins
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="conversation-actions dropdown">
+                                            <button class="btn btn-sm btn-link" data-bs-toggle="dropdown"
+                                                    aria-expanded="false"><i class='uil uil-ellipsis-v'></i>
+                                            </button>
+
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a class="dropdown-item" href="#">Copy Message</a>
+                                                <a class="dropdown-item" href="#">Edit</a>
+                                                <a class="dropdown-item" href="#">Delete</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="clearfix odd">
+                                        <div class="chat-avatar">
+                                            <img src="/images/users/avatar-1.jpg" alt="dominic" class="rounded"/>
+                                            <i>10:05</i>
+                                        </div>
+                                        <div class="conversation-text">
+                                            <div class="ctext-wrap">
+                                                <i>Dominic</i>
+                                                <p>
+                                                    3pm it is. Sure, let's discuss about presentation format, it
+                                                    would
+                                                    be great to finalize today.
+                                                    I am attaching the last year format and here...
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div> <!-- end card-body -->
+                            <div class="card-body p-0">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="mt-2 bg-light p-3">
+                                            <form class="needs-validation" novalidate="" name="chat-form"
+                                                  id="chat-form">
+                                                <div class="row">
+                                                    <div class="col mb-2 mb-sm-0">
+                                                        <input type="text" class="form-control border-0"
+                                                               placeholder="Enter your text" required="">
+                                                        <div class="invalid-feedback">
+                                                            Please enter your messsage
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-auto">
+                                                        <div class="btn-group">
+                                                            <a href="#" class="btn btn-light"><i
+                                                                    class="uil uil-paperclip"></i></a>
+                                                            <a href="#" class="btn btn-light"> <i
+                                                                    class='uil uil-smile'></i> </a>
+                                                            <div class="d-grid">
+                                                                <button type="submit"
+                                                                        class="btn btn-success chat-send">
+                                                                    <i class='uil uil-message'></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </div> <!-- end col -->
+                                                </div> <!-- end row-->
+                                            </form>
+                                        </div>
+                                    </div> <!-- end col-->
+                                </div>
+                                <!-- end row -->
+                            </div>
+                        </div> <!-- end card -->
+                    </div>
+                    <!-- end chat area-->
+
+                </div> <!-- end row-->
+
+
+            </div> <!-- container -->
+
+        </div> <!-- content -->
+
+        <!-- Footer Start -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <script>document.write(new Date().getFullYear())</script>
+                        © Furkan Cansever
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-md-end footer-links d-none d-md-block">
+                            <a href="javascript: void(0);">About</a>
+                            <a href="javascript: void(0);">Support</a>
+                            <a href="javascript: void(0);">Contact Us</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- end Footer -->
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+
+</div>
+<!-- END wrapper -->
+
+<!-- Theme Settings -->
+
+<!-- Vendor js -->
+<script src="/js/vendor.min.js"></script>
+
+<!-- App js -->
+<script src="/js/app.min.js"></script>
+
+</body>
+
+<script th:inline="javascript">
+    // Connect to WebSocket Server.
+
+    $(document).ready(function () {
+        const roomId = [[${roomId}]];
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const url = protocol + '//' + host + '/chat';
+
+        const headers = {
+            'authorization': 'Bearer token'
+        }
+
+        const client = new WebSocketClient(url, headers);
+
+        client.connect(onConnected, onError);
+
+        function onConnected(frame) {
+            // Subscribe to the Public Topic
+            window.sessionId = frame.headers["user-name"];
+            subscribeToChannel();
+            listChatSendButton();
+        }
+
+        function onError() {
+            console.log('Error connecting to WebSocket');
+        }
+
+        function sendMessage(message) {
+            const messageRequest = {
+                channelID: roomId,
+                content: message,
+            }
+
+            client.send("/app/send-message", JSON.stringify(messageRequest));
+        }
+
+        function subscribeToChannel() {
+            client.subscribe('/topic/' + roomId, onMessageReceived);
+        }
+
+        function onMessageReceived(payload) {
+            console.log('Received message: ' + payload);
+            // parse and get the message from payload
+            // append the message to the chat area
+            const response = JSON.parse(payload.body);
+            addMessageToChat(response["sender"]["username"], response["content"], "/images/users/avatar-1.jpg", response["timestamp"], response["sender"]["sessionId"]);
+
+        }
+
+        function listChatSendButton() {
+            const button = document.querySelector('.chat-send');
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const message = document.querySelector('input[type="text"]').value;
+                sendMessage(message);
+                cleanMessageInput();
+            });
+        }
+
+        function cleanMessageInput() {
+            document.querySelector('input[type="text"]').value = '';
+        }
+
+        function parsePayload(message) {
+            // parse the payload and get the message
+            const lines = message.split('\n'); // Mesajı satır satır ayır
+            console.log("lines: " + lines)
+            let headers = {};
+            let body = "";
+
+            lines.forEach(line => {
+                if (line.includes(':')) {
+                    const [key, value] = line.split(':');
+                    headers[key.trim()] = value.trim();
+                } else if (line.trim().length > 0) {
+                    body += line.trim();
+                }
+            });
+
+            console.log(headers)
+            console.log(body)
+            return {
+                headers: headers,
+                body: body
+            }
+        }
+
+        function addMessageToChat(username, messageText, avatarSrc, timestamp, senderId) {
+            // Mesaj listesini bul
+            const conversationList = document.querySelector('.conversation-list');
+            const alignClass = senderId === window.sessionId ? 'clearfix odd' : 'clearfix';
+
+            // timestamp'i formatla ve saat,dakika ve saniyeyi al
+            const date = new Date(timestamp);
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            timestamp = `${hours}:${minutes}`;
+
+            // Yeni mesaj için HTML oluştur
+            const newMessageHtml = `
+        <li class="${alignClass}">
+            <div class="chat-avatar">
+                <img src="${avatarSrc}" alt="${username}" class="rounded"/>
+                <i>${timestamp}</i>
+            </div>
+            <div class="conversation-text">
+                <div class="ctext-wrap">
+                    <i>${username}</i>
+                    <p>${messageText}</p>
+                </div>
+            </div>
+        </li>
+    `;
+
+            // HTML'i ul listesine ekle
+            conversationList.insertAdjacentHTML('beforeend', newMessageHtml);
+        }
+
+    });
+
+
+</script>
+</html>

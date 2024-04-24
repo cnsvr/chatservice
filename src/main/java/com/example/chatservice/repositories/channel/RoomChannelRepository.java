@@ -5,8 +5,9 @@ import com.example.chatservice.repositories.base.BaseRepository;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-import static com.example.chatservice.models.base.BaseChannel.PK_PREFIX;
-import static com.example.chatservice.models.base.BaseChannel.SK_PREFIX;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import java.util.List;
 
 @Repository
 public class RoomChannelRepository extends BaseRepository<RoomChannel> {
@@ -14,11 +15,17 @@ public class RoomChannelRepository extends BaseRepository<RoomChannel> {
         super(RoomChannel.class, enhancedClient);
     }
 
+    public List<RoomChannel> findAll() {
+        QueryConditional queryConditional = QueryConditional.keyEqualTo(Key.builder().partitionValue(RoomChannel.getPartitionKey()).build());
+        QueryEnhancedRequest query = QueryEnhancedRequest.builder().queryConditional(queryConditional).build();
+        return table.query(query).items().stream().toList();
+    }
+
     public RoomChannel findByRoomID(String roomID) {
-        return table.getItem(Key.builder().partitionValue(PK_PREFIX + roomID).sortValue(SK_PREFIX + roomID).build());
+        return table.getItem(Key.builder().partitionValue(RoomChannel.getPartitionKey()).sortValue(RoomChannel.getSortKey(roomID)).build());
     }
 
     public void deleteByRoomID(String roomID) {
-        table.deleteItem(Key.builder().partitionValue(PK_PREFIX + roomID).sortValue(SK_PREFIX + roomID).build());
+        table.deleteItem(Key.builder().partitionValue(RoomChannel.getPartitionKey()).sortValue(RoomChannel.getSortKey(roomID)).build());
     }
 }

@@ -5,8 +5,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @DynamoDbBean
 public class BaseMessage extends BaseModel {
-    public static final String PK_PREFIX = "MESSAGE" + DELIMITER;
-    public static final String SK_PREFIX = "MESSAGE" + DELIMITER;
     private String channelID;
     private String content;
     private MessageCode code;
@@ -15,8 +13,8 @@ public class BaseMessage extends BaseModel {
     public BaseMessage() {
     }
 
-    public BaseMessage(String channelID, String content, MessageCode code) {
-        super(PK_PREFIX + channelID, SK_PREFIX + channelID); // TODO: sk can be different in the future
+    public BaseMessage(String pk, String sk, String channelID, String content, MessageCode code) {
+        super(pk, sk);
         this.channelID = channelID;
         this.content = content;
         this.code = code;

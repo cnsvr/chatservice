@@ -8,7 +8,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import static com.example.chatservice.config.DynamoDbConfiguration.TABLE_NAME;
 
 @Repository
-public abstract class BaseRepository<T extends BaseModel> implements IBaseRepository<T>{
+public abstract class BaseRepository<T extends BaseModel> implements IBaseRepository<T> {
     public final DynamoDbTable<T> table;
     public final DynamoDbEnhancedClient enhancedClient;
     public final Class<T> type;

@@ -8,6 +8,7 @@ import com.example.chatservice.requests.JoinChannelRequest;
 import com.example.chatservice.responses.JoinChannelResponse;
 import com.example.chatservice.util.EventPublishManager;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class ChannelService {
@@ -70,5 +71,13 @@ public class ChannelService {
         RoomChannel roomChannel = getRoomChannel(roomID);
         roomChannel.removePresence(userPresence);
         roomChannelRepository.save(roomChannel);
+    }
+
+    public List<RoomChannel> findAllRoomChannels() {
+        return roomChannelRepository.findAll();
+    }
+
+    public RoomChannel saveRoomChannel(RoomChannel roomChannel) {
+        return roomChannelRepository.save(roomChannel);
     }
 }

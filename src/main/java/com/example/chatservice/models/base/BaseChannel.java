@@ -7,8 +7,6 @@ import java.util.List;
 
 @DynamoDbBean
 public class BaseChannel extends BaseModel {
-    public static final String PK_PREFIX = "CHANNEL" + DELIMITER;
-    public static final String SK_PREFIX = "CHANNEL" + DELIMITER; // TODO: Change this to sort needed for channel
     private List<UserPresence> members;
     private UserPresence self;
 
@@ -16,7 +14,8 @@ public class BaseChannel extends BaseModel {
     }
 
     public BaseChannel(String pk, String sk) {
-        super(PK_PREFIX + pk, SK_PREFIX + sk);
+        super(pk, sk);
+        this.members = List.of();
     }
 
     public List<UserPresence> getMembers() {
