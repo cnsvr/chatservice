@@ -4,6 +4,7 @@ class WebSocketClient {
         this.headers = headers;
         this.socket = new SockJS(this.url);
         this.client = Stomp.over(this.socket);
+        this.client.debug = null;
     }
 
     connect(onConnectedCallback, onErrorCallback) {

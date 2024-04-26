@@ -12,6 +12,9 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+import java.util.UUID;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -26,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/chat")
-                .setHandshakeHandler(new PrincipalHandshakeHandler())
+                // .setHandshakeHandler(new PrincipalHandshakeHandler())
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
@@ -40,11 +43,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                     // Authentication check headers
                     String authorization = accessor.getFirstNativeHeader("authorization");
-
+                    var principal = new StompPrincipal(UUID.randomUUID().toString());
+                    principal.setAllowedGroups(List.of("admin", "user"));
                     // Authenticate user
                     if (authorization.equals("Bearer token")) {
+                        accessor.setUser(principal);
                         return message;
                     } else {
+                        return null;
+                    }
+                }
+
+                if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+                    String destination = accessor.getDestination();
+                    // Kullanıcının abonelik yapma yetkisi kontrol edilir
+                    if (!userHasAccessToTopic(destination, ((StompPrincipal) accessor.getUser()).getAllowedGroups())) {
                         return null;
                     }
                 }
@@ -52,5 +65,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 return message;
             }
         });
+    }
+
+    private boolean userHasAccessToTopic(String topic, List<String> allowedGroups) {
+        if (allowedGroups.contains("admin")) {
+            return true;
+        }
+        // Burada veritabanı veya başka bir servis üzerinden kullanıcının erişim yetkileri kontrol edilir
+        return false;
     }
 }
