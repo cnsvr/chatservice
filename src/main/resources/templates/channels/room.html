@@ -34,7 +34,7 @@
                             <td th:text="${#dates.format(room.getCreatedAt(), 'dd/MM/yyyy HH:mm:ss')}"></td>
                             <td class="table-action">
                                 <button type="button" class="btn btn-success rounded-pill"
-                                        th:data-room-id="${room.getRoomID()}" onclick="joinRoom(this)">
+                                        th:data-channel-id="${room.getChannelId()}" onclick="joinRoom(this)">
                                     Join
                                 </button>
 
@@ -58,9 +58,12 @@
 </body>
 
 <script th:inline="javascript">
+    // This is works for admin panel. In normal way, users have to send join chat request and get the channel id and connect them if it is public.
     function joinRoom(button) {
-        const roomId = button.getAttribute('data-room-id');
-        window.location.href = '/admin/messages/room/' + roomId;
+        const channelId = button.getAttribute('data-channel-id');
+        window.location.href = '/admin/messages/room/' + channelId;
+
+
     }
 </script>
 </html>

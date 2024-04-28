@@ -1,14 +1,15 @@
 package com.example.chatservice.services;
 
+import com.example.chatservice.enums.MessageCode;
+import com.example.chatservice.models.message.RoomMessage;
 import com.example.chatservice.models.message.UserPresence;
 import com.example.chatservice.repositories.message.RoomMessageRepository;
 import com.example.chatservice.requests.SendMessageRequest;
 import com.example.chatservice.responses.SendMessageResponse;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class MessageService {
@@ -24,20 +25,20 @@ public class MessageService {
         SendMessageResponse sendMessageResponse = new SendMessageResponse();
         sendMessageResponse.setChannelID(sendMessageRequest.getChannelID());
         sendMessageResponse.setContent(sendMessageRequest.getContent());
-        var userPresence = new UserPresence();
-        userPresence.setUsername("yagmur");
-        userPresence.setSessionId(principal.getName());
-        sendMessageResponse.setSender(userPresence);
         sendMessageResponse.setTimestamp(System.currentTimeMillis());
 
-        // Send to message topic and save it to database.
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("sender", principal.getName());
 
-        simpMessageSendingOperations.convertAndSend("/topic/" + sendMessageRequest.getChannelID(), sendMessageResponse, headers);
+        var userPresence = new UserPresence();
+        userPresence.setUsername("yagmur"); // TODO: update
+        userPresence.setSessionId(principal.getName());
+        userPresence.setUserId(principal.getName()); // TODO: update
+        sendMessageResponse.setSender(userPresence);
+
+        // Send to message topic and save it to database.
+
+        simpMessageSendingOperations.convertAndSend("/topic/" + sendMessageRequest.getChannelID(), sendMessageResponse);
         // also send acknowledgement to the sender
-        // simpMessageSendingOperations.convertAndSendToUser(sendMessageRequest.getSenderID(), "/queue/ack", "Message sent successfully");
-        // roomMessageRepository.save(sendMessageRequest.getChannelID(), sendMessageRequest.getContent());
+        roomMessageRepository.save(new RoomMessage(sendMessageRequest.getChannelID(), sendMessageRequest.getContent(), MessageCode.CHAT_MESSAGE, userPresence));
         return sendMessageResponse;
     }
 }

@@ -174,7 +174,7 @@
     // Connect to WebSocket Server.
 
     $(document).ready(function () {
-        const roomId = [[${roomId}]];
+        const channelId = [[${channelId}]];
         const protocol = window.location.protocol;
         const host = window.location.host;
         const url = protocol + '//' + host + '/chat';
@@ -200,7 +200,7 @@
 
         function sendMessage(message) {
             const messageRequest = {
-                channelID: roomId,
+                channelID: channelId,
                 content: message,
             }
 
@@ -208,7 +208,7 @@
         }
 
         function subscribeToChannel() {
-            client.subscribe('/topic/' + roomId, onMessageReceived);
+            client.subscribe('/topic/' + channelId, onMessageReceived);
         }
 
         function onMessageReceived(payload) {

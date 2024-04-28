@@ -6,7 +6,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class UserPresence {
     private boolean persistence;
     private String sessionId;
-    private String status;
     private String username;
     private String userId;
 
@@ -24,14 +23,6 @@ public class UserPresence {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public String getUsername() {

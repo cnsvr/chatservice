@@ -4,9 +4,11 @@ import com.example.chatservice.models.message.UserPresence;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
 import java.util.List;
+import java.util.UUID;
 
 @DynamoDbBean
 public class BaseChannel extends BaseModel {
+    private String channelId;
     private List<UserPresence> members;
     private UserPresence self;
 
@@ -16,6 +18,7 @@ public class BaseChannel extends BaseModel {
     public BaseChannel(String pk, String sk) {
         super(pk, sk);
         this.members = List.of();
+        this.channelId = UUID.randomUUID().toString();
     }
 
     public List<UserPresence> getMembers() {
@@ -42,5 +45,13 @@ public class BaseChannel extends BaseModel {
 
     public void removePresence(UserPresence userPresence) {
         members.remove(userPresence);
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 }
