@@ -5,21 +5,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StompPrincipal implements Principal {
-    String name;
+    String sessionId;
+    String username;
     List<String> allowedGroups;
 
-    public StompPrincipal(String name) {
-        this.name = name;
+    public StompPrincipal(String sessionId) {
+        this.sessionId = sessionId;
         this.allowedGroups = new ArrayList<>();
     }
 
     @Override
     public String getName() {
-        return name;
+        return sessionId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<String> getAllowedGroups() {

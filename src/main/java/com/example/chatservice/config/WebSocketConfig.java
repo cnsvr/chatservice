@@ -1,6 +1,9 @@
 package com.example.chatservice.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -12,13 +15,16 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import java.nio.file.AccessDeniedException;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    private final static Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
@@ -30,8 +36,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/chat")
                 // .setHandshakeHandler(new PrincipalHandshakeHandler())
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+                .setAllowedOriginPatterns("*").withSockJS();
     }
 
     @Override
@@ -43,10 +48,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                     // Authentication check headers
                     String authorization = accessor.getFirstNativeHeader("authorization");
+                    String role = accessor.getFirstNativeHeader("role");
+                    String username = accessor.getFirstNativeHeader("username");
                     var principal = new StompPrincipal(UUID.randomUUID().toString());
-                    principal.setAllowedGroups(List.of("admin", "user"));
+                    principal.addAllowedGroup(role);
+                    principal.setUsername(username);
                     // Authenticate user
-                    if (authorization.equals("Bearer token")) {
+                    if (authorization != null && authorization.equals("Bearer token")) {
                         accessor.setUser(principal);
                         return message;
                     } else {
@@ -57,7 +65,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                     String destination = accessor.getDestination();
                     // Kullanıcının abonelik yapma yetkisi kontrol edilir
-                    if (!userHasAccessToTopic(destination, ((StompPrincipal) accessor.getUser()).getAllowedGroups())) {
+                    if (!userHasAccessToTopic(destination, ((StompPrincipal)accessor.getUser()).getAllowedGroups())) {
                         return null;
                     }
                 }
@@ -73,5 +81,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         }
         // Burada veritabanı veya başka bir servis üzerinden kullanıcının erişim yetkileri kontrol edilir
         return false;
+    }
+
+    @EventListener
+    public void handleSessionDisconnectEvent(SessionDisconnectEvent event) {
+        StompPrincipal user = (StompPrincipal)event.getUser();
+        if (user == null) {
+            return;
+        }
+        logger.info("User disconnected: " + user.getName());
+        // logger.info("Session disconnected: " + event.getSessionId());
     }
 }

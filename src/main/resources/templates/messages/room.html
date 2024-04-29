@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head th:replace="~{fragments/header :: header}"><title></title></head>
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
-<script src="/js/web-socket-client.js"></script>
 
 <body>
 <!-- Begin page -->
@@ -29,6 +26,7 @@
                     <div class="col-12">
                         <div class="page-title-box">
                             <h4 class="page-title">Chat</h4>
+                            <button class="btn btn-success float-end mb-2 leave-button">Leave Chat</button>
                         </div>
                     </div>
                 </div>
@@ -170,107 +168,121 @@
 
 </body>
 
-<script th:inline="javascript">
-    // Connect to WebSocket Server.
+<script type="module">
+    import ws from "/js/web-socket-client.js";
 
-    $(document).ready(function () {
-        const channelId = [[${channelId}]];
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        const url = protocol + '//' + host + '/chat';
+    ws.connectWithCallback((frame) => {
+        window.sessionId = frame.headers["user-name"];
+        subscribeToChannel();
+        listChatSendButton();
+        listenLeaveButton();
+    });
+
+    const channelId = "[[${channelId}]]";
+    const roomId = "[[${roomId}]]";
+
+    function sendMessage(message) {
+        const messageRequest = {
+            channelID: channelId,
+            content: message,
+        }
+
+
+        ws.send("/app/send-message", JSON.stringify(messageRequest));
+    }
+
+    function subscribeToChannel() {
+        ws.subscribe('/topic/' + channelId, onMessageReceived);
+    }
+
+    function onMessageReceived(payload) {
+        console.log('Received message: ' + payload);
+        // parse and get the message from payload
+        // append the message to the chat area
+        const response = JSON.parse(payload.body);
+        const messageCode = response["messageCode"];
+        if (messageCode === "CHAT_MESSAGE") {
+            addMessageToChat(response["sender"]["username"], response["content"], "/images/users/avatar-1.jpg", response["timestamp"], response["sender"]["sessionId"]);
+        } else if (messageCode === "USER_JOINED") {
+            addJoinUserInfoToChat(response["sender"]["username"], response["timestamp"]);
+        } else if (messageCode === "USER_LEFT") {
+            addUserLeftChat(response["sender"]["username"], response["timestamp"]);
+        }
+
+    }
+
+    function listChatSendButton() {
+        const button = document.querySelector('.chat-send');
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const message = document.querySelector('input[type="text"]').value;
+            sendMessage(message);
+            cleanMessageInput();
+        });
+    }
+
+    function listenLeaveButton() {
+        const button = document.querySelector('.leave-button');
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            sendLeaveChatMessage();
+        });
+    }
+
+    function sendLeaveChatMessage() {
+        const messageRequest = {
+            target: roomId,
+            targetChannelType: 'ROOM',
+        }
+
 
         const headers = {
-            'authorization': 'Bearer token'
+            'username': 'furkan',
         }
 
-        const client = new WebSocketClient(url, headers);
+        ws.send("/app/leave-channel", JSON.stringify(messageRequest), headers);
+        window.location.href = "/admin/channels/room";
+    }
 
-        client.connect(onConnected, onError);
+    function cleanMessageInput() {
+        document.querySelector('input[type="text"]').value = '';
+    }
 
-        function onConnected(frame) {
-            // Subscribe to the Public Topic
-            window.sessionId = frame.headers["user-name"];
-            subscribeToChannel();
-            listChatSendButton();
-        }
+    function parsePayload(message) {
+        // parse the payload and get the message
+        const lines = message.split('\n'); // Mesajı satır satır ayır
+        console.log("lines: " + lines)
+        let headers = {};
+        let body = "";
 
-        function onError() {
-            console.log('Error connecting to WebSocket');
-        }
-
-        function sendMessage(message) {
-            const messageRequest = {
-                channelID: channelId,
-                content: message,
+        lines.forEach(line => {
+            if (line.includes(':')) {
+                const [key, value] = line.split(':');
+                headers[key.trim()] = value.trim();
+            } else if (line.trim().length > 0) {
+                body += line.trim();
             }
+        });
 
-            client.send("/app/send-message", JSON.stringify(messageRequest));
+        return {
+            headers: headers,
+            body: body
         }
+    }
 
-        function subscribeToChannel() {
-            client.subscribe('/topic/' + channelId, onMessageReceived);
-        }
+    function addMessageToChat(username, messageText, avatarSrc, timestamp, senderId) {
+        // Mesaj listesini bul
+        const conversationList = document.querySelector('.conversation-list');
+        const alignClass = senderId === window.sessionId ? 'clearfix odd' : 'clearfix';
 
-        function onMessageReceived(payload) {
-            console.log('Received message: ' + payload);
-            // parse and get the message from payload
-            // append the message to the chat area
-            const response = JSON.parse(payload.body);
-            addMessageToChat(response["sender"]["username"], response["content"], "/images/users/avatar-1.jpg", response["timestamp"], response["sender"]["sessionId"]);
+        // timestamp'i formatla ve saat,dakika ve saniyeyi al
+        const date = new Date(timestamp);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        timestamp = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
-        }
-
-        function listChatSendButton() {
-            const button = document.querySelector('.chat-send');
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                const message = document.querySelector('input[type="text"]').value;
-                sendMessage(message);
-                cleanMessageInput();
-            });
-        }
-
-        function cleanMessageInput() {
-            document.querySelector('input[type="text"]').value = '';
-        }
-
-        function parsePayload(message) {
-            // parse the payload and get the message
-            const lines = message.split('\n'); // Mesajı satır satır ayır
-            console.log("lines: " + lines)
-            let headers = {};
-            let body = "";
-
-            lines.forEach(line => {
-                if (line.includes(':')) {
-                    const [key, value] = line.split(':');
-                    headers[key.trim()] = value.trim();
-                } else if (line.trim().length > 0) {
-                    body += line.trim();
-                }
-            });
-
-            console.log(headers)
-            console.log(body)
-            return {
-                headers: headers,
-                body: body
-            }
-        }
-
-        function addMessageToChat(username, messageText, avatarSrc, timestamp, senderId) {
-            // Mesaj listesini bul
-            const conversationList = document.querySelector('.conversation-list');
-            const alignClass = senderId === window.sessionId ? 'clearfix odd' : 'clearfix';
-
-            // timestamp'i formatla ve saat,dakika ve saniyeyi al
-            const date = new Date(timestamp);
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            timestamp = `${hours}:${minutes}`;
-
-            // Yeni mesaj için HTML oluştur
-            const newMessageHtml = `
+        // Yeni mesaj için HTML oluştur
+        const newMessageHtml = `
         <li class="${alignClass}">
             <div class="chat-avatar">
                 <img src="${avatarSrc}" alt="${username}" class="rounded"/>
@@ -285,12 +297,49 @@
         </li>
     `;
 
-            // HTML'i ul listesine ekle
-            conversationList.insertAdjacentHTML('beforeend', newMessageHtml);
-        }
+        // HTML'i ul listesine ekle
+        conversationList.insertAdjacentHTML('beforeend', newMessageHtml);
+    }
 
-    });
+    function addJoinUserInfoToChat(username, timestamp) {
+        const conversationList = document.querySelector('.conversation-list');
+        const messageText = `${username} joined the chat`;
+
+        const date = new Date(timestamp);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        timestamp = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        const newInfoHtml = `
+            <div class="alert alert-info bg-info text-white text-center border-0 m-lg-2" style="height: 50px" role="alert">
+                                        <span>${messageText}</span>
+                                        <span class="float-end">${timestamp}</span>
+                                    </div>
+        `;
+
+        conversationList.insertAdjacentHTML('beforeend', newInfoHtml);
+    }
+
+    function addUserLeftChat(username, timestamp) {
+        const conversationList = document.querySelector('.conversation-list');
+        const messageText = `${username} left the chat`;
+
+        const date = new Date(timestamp);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        timestamp = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        const newInfoHtml = `
+            <div class="alert alert-info bg-info text-white text-center border-0 m-lg-2" style="height: 50px" role="alert">
+                                        <span>${messageText}</span>
+                                        <span class="float-end">${timestamp}</span>
+                                    </div>
+        `;
+
+        conversationList.insertAdjacentHTML('beforeend', newInfoHtml);
+    }
 
 
 </script>
+
 </html>

@@ -33,8 +33,8 @@
                             <td th:text="${room.getMembers().size()}"></td>
                             <td th:text="${#dates.format(room.getCreatedAt(), 'dd/MM/yyyy HH:mm:ss')}"></td>
                             <td class="table-action">
-                                <button type="button" class="btn btn-success rounded-pill"
-                                        th:data-channel-id="${room.getChannelId()}" onclick="joinRoom(this)">
+                                <button type="button" class="btn btn-success rounded-pill" id="join-room"
+                                        th:data-target="${room.getRoomID()}" onclick="joinRoom(this)">
                                     Join
                                 </button>
 
@@ -57,13 +57,33 @@
 </div>
 </body>
 
-<script th:inline="javascript">
-    // This is works for admin panel. In normal way, users have to send join chat request and get the channel id and connect them if it is public.
+<script type="module">
+    import ws from "/js/web-socket-client.js";
+
+    const usernames = ["mehmet", "leyla", "ali", "ayse", "fatma", "huseyin", "zeynep", "ahmet", "aylin", "cem"];
+    ws.updateUsername(usernames[Math.floor(Math.random() * usernames.length)]);
+    ws.connect();
+
     function joinRoom(button) {
-        const channelId = button.getAttribute('data-channel-id');
-        window.location.href = '/admin/messages/room/' + channelId;
+        const target = button.getAttribute('data-target');
 
+        ws.subscribe('/user/topic/join-channel', function (message) {
+            console.log("message", message.body)
+            const messageBody = JSON.parse(message.body);
+            window.location.href = '/admin/messages/room/' + target + '/' + messageBody['channelID']
+        });
 
+        const message = {
+            target: target,
+            targetChannelType: 'ROOM',
+            hidden: "false",
+            persistence: "false"
+        };
+
+        ws.send('/app/join-channel', JSON.stringify(message));
     }
+
+    window.joinRoom = joinRoom;
 </script>
+
 </html>

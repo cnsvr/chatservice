@@ -1,11 +1,13 @@
 package com.example.chatservice.responses;
 
+import com.example.chatservice.enums.MessageCode;
 import com.example.chatservice.models.message.UserPresence;
 
 public class SendMessageResponse {
     private String channelID;
     private String messageID;
     private String content;
+    private MessageCode messageCode;
     private UserPresence sender;
     private Long timestamp;
 
@@ -58,5 +60,13 @@ public class SendMessageResponse {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public MessageCode getMessageCode() {
+        return messageCode;
+    }
+
+    public void setMessageCode(MessageCode messageCode) {
+        this.messageCode = messageCode;
     }
 }

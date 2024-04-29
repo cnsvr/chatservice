@@ -5,6 +5,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 @DynamoDbBean
 public class BaseChannel extends BaseModel {
@@ -43,8 +44,8 @@ public class BaseChannel extends BaseModel {
         members.add(userPresence);
     }
 
-    public void removePresence(UserPresence userPresence) {
-        members.remove(userPresence);
+    public void removePresence(Predicate<UserPresence> predicate) {
+        members.removeIf(predicate);
     }
 
     public String getChannelId() {

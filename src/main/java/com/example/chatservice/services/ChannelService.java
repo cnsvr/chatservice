@@ -1,13 +1,16 @@
 package com.example.chatservice.services;
 
+import com.example.chatservice.config.StompPrincipal;
 import com.example.chatservice.enums.ChannelType;
 import com.example.chatservice.models.channel.RoomChannel;
 import com.example.chatservice.models.message.UserPresence;
 import com.example.chatservice.repositories.channel.RoomChannelRepository;
 import com.example.chatservice.requests.JoinChannelRequest;
+import com.example.chatservice.requests.LeaveChannelRequest;
 import com.example.chatservice.responses.JoinChannelResponse;
 import com.example.chatservice.util.EventPublishManager;
 import org.springframework.stereotype.Service;
+import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -20,12 +23,13 @@ public class ChannelService {
         this.eventPublishManager = eventPublishManager;
     }
 
-    public JoinChannelResponse joinChannel(JoinChannelRequest joinChannelRequest) {
+    public JoinChannelResponse joinChannel(Principal principal, JoinChannelRequest joinChannelRequest) {
         JoinChannelResponse joinChannelResponse = new JoinChannelResponse();
-        switch (joinChannelRequest.getChannelType()) {
+        switch (joinChannelRequest.getTargetChannelType()) {
             case ChannelType.ROOM:
-                RoomChannel roomChannel = joinRoomChannel(joinChannelRequest);
-                joinChannelResponse.setChannelID(roomChannel.getRoomID());
+                // Find or create room channel and return the response
+                RoomChannel roomChannel = joinRoomChannel(principal, joinChannelRequest);
+                joinChannelResponse.setChannelID(roomChannel.getChannelId());
                 break;
             case GROUP:
                 break;
@@ -38,13 +42,39 @@ public class ChannelService {
         return joinChannelResponse;
     }
 
-    private RoomChannel joinRoomChannel(JoinChannelRequest joinChannelRequest) {
-        RoomChannel roomChannel = getRoomChannel(joinChannelRequest.getChannelID());
-        if (roomChannel == null) {
-            roomChannel = createRoomChannel(joinChannelRequest.getChannelID());
+    public void leaveChannel(Principal principal, LeaveChannelRequest leaveChannelRequest) {
+        switch (leaveChannelRequest.getTargetChannelType()) {
+            case ChannelType.ROOM:
+                // Remove user from room channel
+                RoomChannel roomChannel = getRoomChannel(leaveChannelRequest.getTarget());
+                if (roomChannel != null) {
+                    var userPresence = new UserPresence(); // TODO: fix this.
+                    userPresence.setUsername(((StompPrincipal)principal).getUsername()); // TODO: fix this.
+                    userPresence.setSessionId(((StompPrincipal)principal).getSessionId()); // TODO: fix this.
+                    eventPublishManager.publishUserLeftRoomEvent(roomChannel.getChannelId(), userPresence);
+                    removeUserPresence(roomChannel.getChannelId(), principal.getName());
+                }
+                break;
+            case GROUP:
+                break;
+            case DIRECT:
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid channel type");
         }
 
-        eventPublishManager.publishUserJoinedToRoomEvent(roomChannel.getRoomID(), null);
+    }
+
+    private RoomChannel joinRoomChannel(Principal principal, JoinChannelRequest joinChannelRequest) {
+        RoomChannel roomChannel = getRoomChannel(joinChannelRequest.getTarget());
+        if (roomChannel == null) {
+            roomChannel = createRoomChannel(joinChannelRequest.getTarget());
+        }
+
+        var userPresence = new UserPresence(); // TODO: fix this.
+        userPresence.setUsername(((StompPrincipal)principal).getUsername()); // TODO: fix this.
+        userPresence.setSessionId(((StompPrincipal)principal).getSessionId()); // TODO: fix this.
+        eventPublishManager.publishUserJoinedToRoomEvent(roomChannel.getChannelId(), userPresence);
         return roomChannel;
     }
 
@@ -67,9 +97,9 @@ public class ChannelService {
         roomChannelRepository.save(roomChannel);
     }
 
-    public void removeUserPresence(String roomID, UserPresence userPresence) {
+    public void removeUserPresence(String roomID, String sessionId) {
         RoomChannel roomChannel = getRoomChannel(roomID);
-        roomChannel.removePresence(userPresence);
+        roomChannel.removePresence(u -> u.getSessionId().equals(sessionId));
         roomChannelRepository.save(roomChannel);
     }
 
@@ -80,4 +110,5 @@ public class ChannelService {
     public RoomChannel saveRoomChannel(RoomChannel roomChannel) {
         return roomChannelRepository.save(roomChannel);
     }
+
 }
